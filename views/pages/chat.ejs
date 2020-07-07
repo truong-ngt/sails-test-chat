@@ -1,0 +1,120 @@
+<!--
+This is your default homepage.
+For more information, see:
+• https://sailsjs.com/documentation/concepts/views
+• https://sailsjs.com/documentation/concepts/routes
+-->
+<link href="https://fonts.googleapis.com/css?family=Lato:300,400" rel="stylesheet">
+
+<link rel="stylesheet" href="/styles/chat.css">
+
+<script type="text/javascript">
+    setTimeout(function sunrise() {
+        document.getElementsByClassName('header')[0].style.backgroundColor = '#118798';
+    }, 0);
+</script>
+
+<div class="container">
+    <div class="d-flex justify-content-center">
+        <div class="col-8 ">
+            <div class="card">
+                <div class="card-header">
+                    Group name
+                </div>
+                <div class="card-body">
+                    <div class="card-body output"> </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="d-flex justify-content-center">
+        <div class="col-8">
+            <div class="">
+                <br>
+                <!-- <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon3">Username</span>
+                    </div>
+                    <input type="text" class="form-control" id="username" aria-describedby="basic-addon3">
+                </div> -->
+                <!-- <br> -->
+                <div class="input-group mb-3">
+                    <textarea type="text" class="form-control input-text" name="input_text" id="input-text"
+                        aria-describedby="basic-addon2"></textarea>
+                    <div class="input-group-append">
+                        <button class="btn btn-success btn-send" type="button" id="send">Send</button>
+                    </div>
+                </div>
+                <!-- <div class="row">
+          <div class="col-10">
+            <textarea class="input-text" name="input_text" id="input-text" cols="" rows="3"></textarea>
+          </div>
+          <div class="col-2">
+            <button type="button" class="btn btn-success btn-send" id="send">Send</button>
+          </div>
+
+        </div> -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var url_string = window.location.href; //window.location.href
+    var url = new URL(url_string);
+    var user_id = url.searchParams.get("user_id");
+    console.log(user_id);
+
+    io.socket.on('connect', function () {
+        console.log('connected');
+
+        io.socket.post('/on-connect', { user_id: user_id }, function (data, data2) {
+            console.log(data);
+            for (var key of data.oldMessages) {
+                console.log(key)
+                content = `<li>${key.username}: ${key.message} </li>`;
+                $('.output').append(content);
+            }
+        });
+
+    });
+
+    // username = $('#username').val();
+    $(document).ready(function () {
+        $('#send').click(function () {
+            username = $('#username').val();
+            content = $('#input-text').val();
+            if (content) {
+                console.log(content);
+
+                io.socket.post('/send-message', { content }, function (data) {
+                    console.log(data);
+                });
+                document.getElementById('input-text').value = '';
+            } else {
+                console.log('no content or username')
+            }
+
+        });
+
+        io.socket.on('chat', function (data) {
+            console.log(data);
+            content = `<li>: ${data.content} </li>`;
+            $('.output').append(content);
+
+        });
+
+    });
+
+  // var input = document.getElementById("input-text");
+  // input.addEventListener("keyup", function (event) {
+  //   if (event.keyCode === 13) {
+  //     event.preventDefault();
+  //     document.getElementById("send").click();
+  //   }
+  // });
+</script>
